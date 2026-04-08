@@ -66,6 +66,82 @@
   bun run version
   ```
 
+  ## Provider support
+
+  The restored CLI now has an initial multi-provider path for GitHub-backed inference.
+
+  Supported providers today:
+
+  - `github-models`: OpenAI-compatible GitHub Models endpoint
+  - `github-copilot`: GitHub Copilot account-backed endpoint for Copilot-hosted Claude models
+
+  Authentication lookup order for both providers is:
+
+  - provider-specific env var
+  - `GH_TOKEN`
+  - `GITHUB_TOKEN`
+  - `gh auth token`
+
+  Log in with GitHub CLI first if you want account-style auth instead of manually setting a token:
+
+  ```bash
+  gh auth login
+  ```
+
+  Use GitHub Models with the restored Claude Code runtime:
+
+  ```bash
+  bun run dev --settings '{"provider":"github-models"}'
+  ```
+
+  Or choose a specific GitHub Models model:
+
+  ```bash
+  bun run dev --settings '{"provider":"github-models"}' --model "openai/gpt-4.1"
+  ```
+
+  Use GitHub Copilot with the restored Claude Code runtime:
+
+  ```bash
+  bun run dev --settings '{"provider":"github-copilot"}'
+  ```
+
+  You can also switch providers interactively inside the CLI:
+
+  ```text
+  /provider
+  ```
+
+  The picker shows the available providers, saves the selection to user
+  settings, and then opens the existing model picker for the selected provider.
+
+  Useful shortcuts:
+
+  - `/provider` opens the visual provider picker
+  - `/provider info` shows the current provider and any active environment override
+  - `/provider github-copilot` switches directly to a specific provider
+  - `/model` still works after provider changes and only shows models supported by the active provider
+
+  Switch to a validated Copilot-hosted Claude model:
+
+  ```bash
+  bun run dev --settings '{"provider":"github-copilot"}' --model "claude-opus-4.6"
+  ```
+
+  Copilot-backed models currently validated with the Claude Code runtime and tool loop are:
+
+  - `claude-sonnet-4.6`
+  - `claude-opus-4.6`
+  - `claude-haiku-4.5`
+  - `claude-sonnet-4.5`
+  - `claude-opus-4.5`
+  - `claude-sonnet-4`
+
+  Current limitation:
+
+  - Copilot-hosted Claude models are working through the existing Claude Code agent/runtime path.
+  - Copilot-hosted GPT/Grok style models are not fully wired into the Claude Code runtime yet because they primarily require Copilot's `/responses` API path rather than the current chat/messages shim.
+
   ## 中文说明
 
   # 还原后的 Claude Code 源码
@@ -131,3 +207,78 @@
   ```bash
   bun run version
   ```
+
+  ### Provider 支持
+
+  当前恢复版 CLI 已经补上了一条初步的多 provider 路径，可以接 GitHub 侧的推理服务。
+
+  目前可用的 provider：
+
+  - `github-models`：OpenAI-compatible 的 GitHub Models 接口
+  - `github-copilot`：基于 GitHub Copilot 账号态的接口，当前主要支持 Copilot 托管的 Claude 模型
+
+  这两个 provider 的鉴权查找顺序都是：
+
+  - provider 专用环境变量
+  - `GH_TOKEN`
+  - `GITHUB_TOKEN`
+  - `gh auth token`
+
+  如果你想走“GitHub 账号登录态”而不是手填 token，可以先执行：
+
+  ```bash
+  gh auth login
+  ```
+
+  使用 GitHub Models 跑恢复版 Claude Code runtime：
+
+  ```bash
+  bun run dev --settings '{"provider":"github-models"}'
+  ```
+
+  指定 GitHub Models 模型：
+
+  ```bash
+  bun run dev --settings '{"provider":"github-models"}' --model "openai/gpt-4.1"
+  ```
+
+  使用 GitHub Copilot 跑恢复版 Claude Code runtime：
+
+  ```bash
+  bun run dev --settings '{"provider":"github-copilot"}'
+  ```
+
+  现在也可以在 CLI 内通过交互式命令切换 provider：
+
+  ```text
+  /provider
+  ```
+
+  这个 picker 会列出当前可用 provider，把选择写入用户 settings，然后继续打开该 provider 对应的模型选择器。
+
+  常用命令：
+
+  - `/provider`：打开可视化 provider 选择器
+  - `/provider info`：显示当前 provider 和是否存在环境变量覆盖
+  - `/provider github-copilot`：直接切换到指定 provider
+  - `/model`：在切 provider 之后继续切模型，只显示当前 provider 支持的模型
+
+  切换到已经验证可用的 Copilot Claude 模型：
+
+  ```bash
+  bun run dev --settings '{"provider":"github-copilot"}' --model "claude-opus-4.6"
+  ```
+
+  当前已经验证能跑 Claude Code runtime 和工具循环的 Copilot 模型有：
+
+  - `claude-sonnet-4.6`
+  - `claude-opus-4.6`
+  - `claude-haiku-4.5`
+  - `claude-sonnet-4.5`
+  - `claude-opus-4.5`
+  - `claude-sonnet-4`
+
+  当前限制：
+
+  - Copilot 托管的 Claude 模型已经可以走现有 Claude Code agent/runtime 路径。
+  - Copilot 托管的 GPT/Grok 一类模型还没有完整接进来，因为它们主要需要走 Copilot 的 `/responses` API，而当前适配层主要还是 chat/messages 这条路径。
